@@ -1,25 +1,34 @@
 #!/usr/bin/python3
 
 def canUnlockAll(boxes):
-    # Crée une liste pour savoir si les boîtes sont déverrouillées
+    """
+    Determines if all the boxes can be opened.
+
+    Args:
+    boxes (list of list of int): A list of lists where each list contains integers that represent keys to other boxes.
+
+    Returns:
+    bool: True if all boxes can be opened, False otherwise.
+    """
+    # Initialize the list to track unlocked boxes
     unlocked = [False] * len(boxes)
     
-    # La première boîte est toujours déverrouillée
+    # The first box is always unlocked
     unlocked[0] = True
     
-    # Liste des boîtes à vérifier, on commence avec la boîte 0
-    keys = [0]
+    # Keep track of boxes to check
+    keys = [0]  # We start by having access to box 0
     
     while keys:
-        # On prend une boîte à vérifier
+        # Get the next box to check
         current_box = keys.pop()
         
-        # On vérifie les clés dans cette boîte
+        # Loop through the keys in the current box
         for key in boxes[current_box]:
-            # Si la clé permet d'ouvrir une boîte non déverrouillée
+            # If the key unlocks a box that hasn't been unlocked yet
             if key < len(boxes) and not unlocked[key]:
                 unlocked[key] = True
-                keys.append(key)  # Ajouter cette boîte à vérifier
+                keys.append(key)  # Add this box to the list of boxes to check
     
-    # Si toutes les boîtes sont déverrouillées, on retourne True
+    # If all boxes are unlocked, return True
     return all(unlocked)
