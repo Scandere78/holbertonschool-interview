@@ -78,7 +78,13 @@ heap_t *heap_insert(heap_t **root, int value)
 	else
 		parent->right = new_node;
 
-	swap_up(new_node);
+	while (new_node->parent && new_node->n > new_node->parent->n)
+{
+    // swap les valeurs uniquement
+    int tmp = new_node->n;
+    new_node->n = new_node->parent->n;
+    new_node->parent->n = tmp;
+}
 
 	return (new_node);
 }
