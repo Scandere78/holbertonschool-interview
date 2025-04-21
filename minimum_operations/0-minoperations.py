@@ -5,6 +5,7 @@ Minimum Operations
 
 """
 
+
 def minOperations(n):
     if n < 2:
         return 0
