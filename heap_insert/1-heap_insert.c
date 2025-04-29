@@ -1,90 +1,158 @@
 #include "binary_trees.h"
-#include <stdlib.h>
 
 /**
- * binary_tree_size - Compte les nœuds dans un arbre binaire
+ * height - measures the height of a tree
+ *
+ * @tree: tree root
+ * Return: height
  */
-size_t binary_tree_size(const binary_tree_t *tree)
+int height(const binary_tree_t *tree)
 {
-	if (!tree)
-		return (0);
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+	int left = 0;
+	int right = 0;
+
+	if (tree == NULL)
+		return (-1);
+
+	left = height(tree->left);
+	right = height(tree->right);
+
+	if (left > right)
+		return (left + 1);
+
+	return (right + 1);
 }
 
 /**
- * get_parent_node - Trouve le parent où insérer le nouveau nœud
+ * btree_is_perfect - checks if a binary tree is perfect
+ *
+ * @tree: tree root
+ * Return: 1 if tree is perfect, 0 otherwise
  */
-heap_t *get_parent_node(heap_t *root, size_t index)
+int btree_is_perfect(const binary_tree_t *tree)
 {
-	if (index == 1)
-		return (NULL);
-	heap_t *parent = root;
-	size_t path[64], depth = 0;
+	_Bool l_ch;
+	_Bool r_ch;
+	int l_per;
+	int r_per;
 
-	/* Décoder le chemin vers le parent en binaire sauf le bit le plus haut */
-	while (index > 1)
+	if (tree && height(tree->left) == height(tree->right))
 	{
-		path[depth++] = index % 2;
-		index /= 2;
-	}
-	for (int i = depth - 1; i > 0; i--)
-		parent = path[i] ? parent->right : parent->left;
+		if (height(tree->left) == -1)
+			return (1);
 
-	return (parent);
+		l_ch = !((tree->left)->left) && !((tree->left)->right);
+		r_ch = !((tree->right)->left) && !((tree->right)->right);
+
+		if ((tree->left && l_ch) && (tree->right && r_ch))
+			return (1);
+
+		if (tree && tree->left && tree->right)
+		{
+			l_per = btree_is_perfect(tree->left);
+			r_per = btree_is_perfect(tree->right);
+			return (l_per && r_per);
+		}
+	}
+
+	return (0);
 }
 
 /**
- * swap_up - Remonte le nœud si la valeur est plus grande que le parent
+ * swap - swaps nodes when child is greater than parent
+ *
+ * @arg_node: parent node
+ * @arg_child: child node
+ * Return: no return
  */
-void swap_up(heap_t *node)
+void swap(heap_t **arg_node, heap_t **arg_child)
 {
-	int tmp;
-	while (node->parent && node->n > node->parent->n)
+	heap_t *node, *child, *node_child, *node_left, *node_right, *parent;
+	int left_right;
+
+	node = *arg_node, child = *arg_child;
+	if (child->n > node->n)
 	{
-		tmp = node->n;
-		node->n = node->parent->n;
-		node->parent->n = tmp;
-		node = node->parent;
+		if (child->left)
+			child->left->parent = node;
+		if (child->right)
+			child->right->parent = node;
+		if (node->left == child)
+			node_child = node->right, left_right = 0;
+		else
+			node_child = node->left, left_right = 1;
+		node_left = child->left, node_right = child->right;
+		if (left_right == 0)
+		{
+			child->right = node_child;
+			if (node_child)
+				node_child->parent = child;
+			child->left = node;
+		}
+		else
+		{
+			child->left = node_child;
+			if (node_child)
+				node_child->parent = child;
+			child->right = node;
+		}
+		if (node->parent)
+		{
+			if (node->parent->left == node)
+				node->parent->left = child;
+			else
+				node->parent->right = child;
+		}
+		parent = node->parent, child->parent = parent;
+		node->parent = child, node->left = node_left;
+		node->right = node_right, *arg_node = child;
 	}
 }
 
 /**
- * heap_insert - Insère une valeur dans le Max Binary Heap
+ * heap_insert - function that inserts a value in Max Binary Heap
+ * @value: value to be inserted
+ * @root: tree root
+ * Return: pointer to the created node, or NULL on failure.
  */
 heap_t *heap_insert(heap_t **root, int value)
 {
-	heap_t *new_node, *parent;
-	size_t size;
+	heap_t *new;
 
-	if (!root)
-		return (NULL);
-
-	new_node = binary_tree_node(NULL, value);
-	if (!new_node)
-		return (NULL);
-
-	if (!*root)
+	if (*root == NULL)
 	{
-		*root = new_node;
-		return (new_node);
+		*root = binary_tree_node(NULL, value);
+		return (*root);
 	}
 
-	size = binary_tree_size(*root) + 1;
-	parent = get_parent_node(*root, size);
+	if (btree_is_perfect(*root) || !btree_is_perfect((*root)->left))
+	{
+		if ((*root)->left)
+		{
+			new = heap_insert(&((*root)->left), value);
+			swap(root, &((*root)->left));
+			return (new);
+		}
+		else
+		{
+			new = (*root)->left = binary_tree_node(*root, value);
+			swap(root, &((*root)->left));
+			return (new);
+		}
+	}
 
-	new_node->parent = parent;
-	if (!parent->left)
-		parent->left = new_node;
+	if ((*root)->right)
+	{
+		new = heap_insert(&((*root)->right), value);
+		swap(root, (&(*root)->right));
+		return (new);
+	}
 	else
-		parent->right = new_node;
+	{
+		new = (*root)->right = binary_tree_node(*root, value);
+		swap(root, &((*root)->right));
+		return (new);
+	}
 
-	while (new_node->parent && new_node->n > new_node->parent->n)
-{
-    // swap les valeurs uniquement
-    int tmp = new_node->n;
-    new_node->n = new_node->parent->n;
-    new_node->parent->n = tmp;
-}
-
-	return (new_node);
+	return (NULL);
 }
