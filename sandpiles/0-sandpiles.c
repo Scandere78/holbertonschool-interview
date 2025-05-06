@@ -69,6 +69,7 @@ void change_grids(int grid[3][3]) {
     int i, j;
     int new_grid[3][3] = {0};
 
+<<<<<<< HEAD
     for (i = 0; i < 3; i++) {
         for (j = 0; j < 3; j++) {
             if (grid[i][j] > 3) {
@@ -82,4 +83,7 @@ void change_grids(int grid[3][3]) {
     }
 
     sum_grids(grid, new_grid);
+=======
+	sum_grids(grid1, new_grid);
+>>>>>>> a98d8473ef398efe9427188399f5ca7afcfed9ba
 }
