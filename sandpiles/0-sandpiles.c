@@ -1,120 +1,85 @@
+#include <stdio.h>
 #include "sandpiles.h"
 
 /**
- * sandpiles_sum - computes the sum of two sandpiles
- * @grid1: sandpiles stable
- * @grid2: sandpiles stable
- * Return: void function
+ * sandpiles_sum - Computes the sum of two sandpiles
+ * @grid1: Left 3x3 grid
+ * @grid2: Right 3x3 grid
  */
-void sandpiles_sum(int grid1[3][3], int grid2[3][3])
-{
-
-	sum_grids(grid1, grid2);
-
-	while (!check_grids(grid1))
-	{
-		print_grid(grid1);
-		change_grids(grid1);
-	}
-
-}
-
-
-/**
- * sum_grids - computes the sum of two sandpiles
- * @grid1: sandpiles stable
- * @grid2: sandpiles stable
- * Return: void function
- */
-void sum_grids(int grid1[3][3], int grid2[3][3])
-{
-	int i;
-	int j;
-
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			grid1[i][j] = grid1[i][j] + grid2[i][j];
-		}
-	}
-}
-
-
-/**
- * check_grids - computes the sum of two sandpiles
- * @grid1: sandpiles stable
- * Return: void function
- */
-int check_grids(int grid1[3][3])
-{
-
-	int i = 0;
-	int j = 0;
-
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
-			if (grid1[i][j] > 3)
-				return (0);
-	return (1);
+void sandpiles_sum(int grid1[3][3], int grid2[3][3]) {
+    sum_grids(grid1, grid2);
+    while (!check_grids(grid1)) {
+        print_grid(grid1);
+        change_grids(grid1);
+    }
 }
 
 /**
- * print_grid - computes the sum of two sandpiles
- * @grid: sandpiles stable
- * Return: void function
+ * sum_grids - Computes the sum of two grids
+ * @grid1: Left 3x3 grid
+ * @grid2: Right 3x3 grid
  */
-static void print_grid(int grid[3][3])
-{
-	int i, j;
-
-	printf("=\n");
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			if (j)
-				printf(" ");
-			printf("%d", grid[i][j]);
-		}
-		printf("\n");
-	}
+void sum_grids(int grid1[3][3], int grid2[3][3]) {
+    int i, j;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            grid1[i][j] += grid2[i][j];
+        }
+    }
 }
 
 /**
- * change_grids - computes the sum of two sandpiles
- * @grid1: sandpiles stable
- * Return: void function
+ * check_grids - Checks if a grid is stable
+ * @grid: 3x3 grid
+ * Return: 1 if stable, 0 otherwise
  */
-void change_grids(int grid1[3][3])
-{
-	int i;
-	int j;
-	int new_grid[3][3];
+int check_grids(int grid[3][3]) {
+    int i, j;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (grid[i][j] > 3) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
 
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
-			new_grid[i][j] = 0;
+/**
+ * print_grid - Prints a 3x3 grid
+ * @grid: 3x3 grid
+ */
+void print_grid(int grid[3][3]) {
+    int i, j;
+    printf("=\n");
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (j) printf(" ");
+            printf("%d", grid[i][j]);
+        }
+        printf("\n");
+    }
+}
 
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			if (grid1[i][j] > 3)
-			{
-				grid1[i][j] = grid1[i][j] - 4;
-				if ((i - 1 >= 0) && (i - 1 < 3))
-					new_grid[i - 1][j] += 1;
-				if ((j - 1 >= 0) && (j - 1 < 3))
-					new_grid[i][j - 1] += 1;
-				if ((i + 1 >= 0) && (i + 1 < 3))
-					new_grid[i + 1][j] += 1;
-				if ((j + 1 >= 0) && (j + 1 < 3))
-					new_grid[i][j + 1] += 1;
-			}
-		}
-	}
+/**
+ * change_grids - Performs a toppling operation on a grid
+ * @grid: 3x3 grid
+ */
+void change_grids(int grid[3][3]) {
+    int i, j;
+    int new_grid[3][3] = {0};
 
-	sum_grids(grid1, new_grid);
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (grid[i][j] > 3) {
+                grid[i][j] -= 4;
+                if (i > 0) new_grid[i-1][j] += 1;
+                if (i < 2) new_grid[i+1][j] += 1;
+                if (j > 0) new_grid[i][j-1] += 1;
+                if (j < 2) new_grid[i][j+1] += 1;
+            }
+        }
+    }
+
+    sum_grids(grid, new_grid);
 }
