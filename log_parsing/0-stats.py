@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-"""Input stats"""
+"""
+Parses stdin log lines to compute file size and HTTP status code metrics.
+"""
 import sys
 
 stats = {
