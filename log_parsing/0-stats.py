@@ -1,44 +1,41 @@
+#!/usr/bin/python3
+"""Input stats"""
 import sys
-import signal
 
-def print_statistics(total_size, status_counts):
-    print(f"File size: {total_size}")
-    for code in sorted(status_counts.keys()):
-        print(f"{code}: {status_counts[code]}")
+stats = {
+    '200': 0,
+    '301': 0,
+    '400': 0,
+    '401': 0,
+    '403': 0,
+    '404': 0,
+    '405': 0,
+    '500': 0
+}
+sizes = [0]
 
-def parse_line(line):
-    parts = line.split()
-    if len(parts) != 9:
-        return None, None
 
-    try:
-        status_code = int(parts[-2])
-        file_size = int(parts[-1])
-    except ValueError:
-        return None, None
+def print_stats():
+    print('File size: {}'.format(sum(sizes)))
+    for s_code, count in sorted(stats.items()):
+        if count:
+            print('{}: {}'.format(s_code, count))
 
-    return status_code, file_size
 
-def main():
-    total_size = 0
-    status_counts = {}
-    line_count = 0
-
-    def handle_interrupt(signum, frame):
-        print_statistics(total_size, status_counts)
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, handle_interrupt)
-
-    for line in sys.stdin:
-        status_code, file_size = parse_line(line)
-        if status_code is not None and file_size is not None:
-            total_size += file_size
-            status_counts[status_code] = status_counts.get(status_code, 0) + 1
-            line_count += 1
-
-            if line_count % 10 == 0:
-                print_statistics(total_size, status_counts)
-
-if __name__ == "__main__":
-    main()
+try:
+    for i, line in enumerate(sys.stdin, start=1):
+        matches = line.rstrip().split()
+        try:
+            status_code = matches[-2]
+            file_size = matches[-1]
+            if status_code in stats.keys():
+                stats[status_code] += 1
+            sizes.append(int(file_size))
+        except Exception:
+            pass
+        if i % 10 == 0:
+            print_stats()
+    print_stats()
+except KeyboardInterrupt:
+    print_stats()
+    raise
