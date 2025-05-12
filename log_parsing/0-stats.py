@@ -1,4 +1,11 @@
 #!/usr/bin/python3
+"""
+This script reads from standard input line by line and computes metrics:
+- Total file size from valid lines.
+- Count of status codes (200, 301, 400, 401, 403, 404, 405, 500).
+Stats are printed every 10 lines or upon keyboard interruption (CTRL+C).
+"""
+
 import sys
 import re
 from collections import defaultdict
