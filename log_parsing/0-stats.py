@@ -1,41 +1,41 @@
 #!/usr/bin/python3
-"""
-Parses logs from stdin and computes statistics:
-- total file size
-- count of status codes
-"""
-
+"""Input stats"""
 import sys
-import re
-from collections import defaultdict
 
-total_size = 0
-status_counts = defaultdict(int)
-valid_codes = ['200', '301', '400', '401', '403', '404', '405', '500']
-line_count = 0
+stats = {
+    '200': 0,
+    '301': 0,
+    '400': 0,
+    '401': 0,
+    '403': 0,
+    '404': 0,
+    '405': 0,
+    '500': 0
+}
+sizes = [0]
+
 
 def print_stats():
-    print(f"File size: {total_size}")
-    for code in sorted(status_counts):
-        if code in valid_codes:
-            print(f"{code}: {status_counts[code]}")
+    print('File size: {}'.format(sum(sizes)))
+    for s_code, count in sorted(stats.items()):
+        if count:
+            print('{}: {}'.format(s_code, count))
+
 
 try:
-    for line in sys.stdin:
-        match = re.fullmatch(
-            r'[\d.]+ - \[.*\] "GET /projects/260 HTTP/1.1" (\d{3}) (\d+)\n?', line)
-        if match:
-            code, size = match.groups()
-            total_size += int(size)
-            if code in valid_codes:
-                status_counts[code] += 1
-            line_count += 1
-
-            if line_count % 10 == 0:
-                print_stats()
-
+    for i, line in enumerate(sys.stdin, start=1):
+        matches = line.rstrip().split()
+        try:
+            status_code = matches[-2]
+            file_size = matches[-1]
+            if status_code in stats.keys():
+                stats[status_code] += 1
+            sizes.append(int(file_size))
+        except Exception:
+            pass
+        if i % 10 == 0:
+            print_stats()
+    print_stats()
 except KeyboardInterrupt:
     print_stats()
     raise
-
-print_stats()
