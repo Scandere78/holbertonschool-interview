@@ -1,41 +1,41 @@
 #!/usr/bin/python3
-"""Input stats"""
 import sys
+import re
+from collections import defaultdict
 
-stats = {
-    '200': 0,
-    '301': 0,
-    '400': 0,
-    '401': 0,
-    '403': 0,
-    '404': 0,
-    '405': 0,
-    '500': 0
-}
-sizes = [0]
+# Regex pour le format attendu
+pattern = re.compile(
+    r'^\d{1,3}(\.\d{1,3}){3} - \[.*?\] "GET /projects/260 HTTP/1.1" (\d{3}) (\d+)$'
+)
+
+status_codes = defaultdict(int)
+total_size = 0
+line_count = 0
+valid_status = ['200', '301', '400', '401', '403', '404', '405', '500']
 
 
 def print_stats():
-    print('File size: {}'.format(sum(sizes)))
-    for s_code, count in sorted(stats.items()):
-        if count:
-            print('{}: {}'.format(s_code, count))
+    print("File size: {}".format(total_size))
+    for code in sorted(valid_status):
+        if status_codes[code]:
+            print("{}: {}".format(code, status_codes[code]))
 
 
 try:
-    for i, line in enumerate(sys.stdin, start=1):
-        matches = line.rstrip().split()
-        try:
-            status_code = matches[-2]
-            file_size = matches[-1]
-            if status_code in stats.keys():
-                stats[status_code] += 1
-            sizes.append(int(file_size))
-        except Exception:
-            pass
-        if i % 10 == 0:
-            print_stats()
-    print_stats()
+    for line in sys.stdin:
+        match = pattern.match(line.strip())
+        if match:
+            status, size = match.group(2), match.group(3)
+            total_size += int(size)
+            if status in valid_status:
+                status_codes[status] += 1
+            line_count += 1
+
+            if line_count == 10:
+                print_stats()
+                line_count = 0
 except KeyboardInterrupt:
     print_stats()
     raise
+else:
+    print_stats()
