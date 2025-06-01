@@ -1,13 +1,18 @@
 #!/usr/bin/python3
+"""
+Module 0-validate_utf8
+This module defines the function validUTF8 which checks if a list of integers
+represents a valid UTF-8 encoding.
+"""
 
 
 def validUTF8(data):
     """
     Validates if a given list of integers represents a valid UTF-8 encoding.
-    
+
     Args:
         data (list): A list of integers representing byte values.
-        
+
     Returns:
         bool: True if the data is a valid UTF-8 encoding, False otherwise.
     """
@@ -31,4 +36,3 @@ def validUTF8(data):
             num_bytes -= 1
 
     return num_bytes == 0
-    
