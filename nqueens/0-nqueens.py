@@ -1,49 +1,52 @@
 #!/usr/bin/python3
+""" Program that solves the N queens problem."""
 
 import sys
 
 
-def is_safe(positions, row, col):
-    """Check if placing a queen at (row, col) conflicts with existing queens"""
-    for queen_row, queen_col in positions:
-        if queen_row == row or queen_col == col:
-            return False
-        if abs(queen_row - row) == abs(queen_col - col):
+def is_safe(queen_positions, row, col):
+    """Checks if the position is safe for a new queen"""
+    for i in range(row):
+        if queen_positions[i] == col or \
+           queen_positions[i] - i == col - row or \
+           queen_positions[i] + i == col + row:
             return False
     return True
 
 
-def solve_nqueens(n, positions, row):
-    """Recursive backtracking function to solve N Queens"""
-    if row == n:
-        print(positions[:])
+def solve_nqueens(size, row, queen_positions):
+    """ Solves the N Queens problem recursively"""
+    if row == size:
+        print_solution(queen_positions)
         return
-
-    for col in range(n):
-        if is_safe(positions, row, col):
-            positions.append([row, col])
-            solve_nqueens(n, positions, row + 1)
-            positions.pop()
+    for col in range(size):
+        if is_safe(queen_positions, row, col):
+            queen_positions[row] = col
+            solve_nqueens(size, row + 1, queen_positions)
 
 
-def main():
+def print_solution(queen_positions):
+    """ Prints one solution from the list of queen positions"""
+    solution = []
+    for row, col in enumerate(queen_positions):
+        solution.append([row, col])
+    print(solution)
+
+
+if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
 
     try:
-        n = int(sys.argv[1])
+        N = int(sys.argv[1])
     except ValueError:
         print("N must be a number")
         sys.exit(1)
 
-    if n < 4:
+    if N < 4:
         print("N must be at least 4")
         sys.exit(1)
 
-    positions = []
-    solve_nqueens(n, positions, 0)
-
-
-if __name__ == "__main__":
-    main()
+    queen_positions = [-1] * N
+    solve_nqueens(N, 0, queen_positions)
